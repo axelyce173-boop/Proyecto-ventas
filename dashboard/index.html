@@ -6,75 +6,269 @@
   <title>Dashboard de Ventas</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 1rem; }
-    h1 { margin-bottom: 0.25rem; }
-    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-    .card { padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
-    .card h2 { margin-top: 0; }
-    .metric { font-size: 2rem; font-weight: 700; margin: 0.25rem 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 2.5rem;
+      font-weight: 300;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card h2 {
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 1.4rem;
+      font-weight: 600;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .card h2::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #3498db;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .metric {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 20px 0;
+      color: #e74c3c;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .metric-small {
+      font-size: 1.2rem;
+      color: #7f8c8d;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 20px 0;
+    }
+
+    .metric-small {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .loading {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+      padding: 40px;
+    }
+
+    .error {
+      background: #ffeaea;
+      color: #e74c3c;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #e74c3c;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Dashboard de Ventas</h1>
-  <p>Este dashboard consume la API en <code>http://localhost:8000</code>. Asegúrese de ejecutar <code>uvicorn api.main:app --reload</code> antes de abrir este archivo.</p>
-  <div class="grid">
-    <div class="card">
-      <h2>Tendencia histórica de ventas</h2>
-      <canvas id="salesChart" height="250"></canvas>
-    </div>
-    <div class="card">
-      <h2>Top 5 clientes</h2>
-      <canvas id="topCustomersChart" height="250"></canvas>
-    </div>
-    <div class="card">
-      <h2>Monto pendiente de cobro</h2>
-      <div class="metric" id="pendingAmount">Cargando...</div>
-      <div class="metric" id="debtorsCount"></div>
+  <div class="container">
+    <h1>Dashboard de Ventas</h1>
+    <div class="grid">
+      <div class="card">
+        <h2>📈 Tendencia histórica de ventas</h2>
+        <div class="chart-container">
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2>🏆 Top 5 clientes</h2>
+        <div class="chart-container">
+          <canvas id="topCustomersChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2>💰 Monto pendiente de cobro</h2>
+        <div class="metric" id="pendingAmount">Cargando...</div>
+        <div class="metric-small" id="debtorsCount"></div>
+      </div>
     </div>
   </div>
 
   <script>
     const API = "http://localhost:8000";
 
-    async function obtenerJson(ruta) {
+    async function fetchJson(ruta) {
       const res = await fetch(`${API}${ruta}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     }
 
-    function formatearMoneda(valor) {
+    function formatCurrency(valor) {
       return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(valor);
     }
 
     async function renderizar() {
-      const ventas = await fetchJson("/metricas/ventas_por_mes");
-      const etiquetas = ventas.map(r => `${r.year}-${String(r.month).padStart(2, "0")}`);
-      const totales = ventas.map(r => r.total);
+      // Show loading
+      document.getElementById("pendingAmount").innerHTML = '<div class="loading">Cargando datos...</div>';
 
-      const ctxVentas = document.getElementById("salesChart").getContext("2d");
-      new Chart(ctxVentas, {
-        type: "line",
-        data: {
-          labels: etiquetas,
-          datasets: [{ label: "Ventas totales", data: totales, borderColor: "#007acc", backgroundColor: "rgba(0,122,204,0.15)", fill: true }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
+      try {
+        const ventas = await fetchJson("/metricas/ventas_por_mes");
+        const etiquetas = ventas.map(r => `${r.year}-${String(r.month).padStart(2, "0")}`);
+        const totales = ventas.map(r => r.total);
 
-      const topClientes = await fetchJson("/metricas/top_clientes");
-      const ctxTop = document.getElementById("topCustomersChart").getContext("2d");
-      new Chart(ctxTop, {
-        type: "bar",
-        data: {
-          labels: topClientes.map(r => r.customer_name),
-          datasets: [{ label: "Facturación", data: topClientes.map(r => r.total), backgroundColor: "#1f77b4" }]
-        },
-        options: { responsive: true }
-      });
+        const ctxVentas = document.getElementById("salesChart").getContext("2d");
+        new Chart(ctxVentas, {
+          type: "line",
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: "Ventas totales",
+              data: totales,
+              borderColor: "#3498db",
+              backgroundColor: "rgba(52, 152, 219, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: "#3498db",
+              pointBorderColor: "#fff",
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { callback: value => formatCurrency(value) }
+              },
+              x: {
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              }
+            }
+          }
+        });
 
-      const pendiente = await fetchJson("/metricas/pendiente");
-      document.getElementById("pendingAmount").innerText = formatCurrency(pendiente.pending_total || 0);
-      document.getElementById("debtorsCount").innerText = `Deudores: ${pendiente.debtors || 0}`;
+        const topClientes = await fetchJson("/metricas/top_clientes");
+        const ctxTop = document.getElementById("topCustomersChart").getContext("2d");
+        new Chart(ctxTop, {
+          type: "bar",
+          data: {
+            labels: topClientes.map(r => r.customer_name),
+            datasets: [{
+              label: "Facturación",
+              data: topClientes.map(r => r.total),
+              backgroundColor: [
+                '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'
+              ],
+              borderWidth: 0,
+              borderRadius: 4,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { callback: value => formatCurrency(value) }
+              },
+              x: {
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              }
+            }
+          }
+        });
+
+        const pendiente = await fetchJson("/metricas/pendiente");
+        document.getElementById("pendingAmount").innerText = formatCurrency(pendiente.pending_total || 0);
+        document.getElementById("debtorsCount").innerText = `👥 ${pendiente.debtors || 0} deudores`;
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById("pendingAmount").innerHTML = `<div class="error">Error cargando datos: ${err.message}</div>`;
+      }
     }
 
     renderizar().catch(err => {

@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 
 # Ajusta esta URL según tu motor de base de datos.
@@ -27,7 +27,10 @@ DB_URL = os.environ.get("DATABASE_URL", "mysql+pymysql://root:@localhost:3307/Sa
 
 
 def get_engine() -> Engine:
-    return create_engine(DB_URL, future=True)
+    if "mysql" in DB_URL:
+        return create_engine(DB_URL, future=True, connect_args={"connect_timeout": 5})
+    else:
+        return create_engine(DB_URL, future=True)
 
 app = FastAPI(
     title="API de Análisis de Ventas",
@@ -43,11 +46,9 @@ app.add_middleware(
 )
 
 
-_engine = get_engine()
-
-
 def _get_conn():
-    return _engine.connect()
+    engine = get_engine()
+    return engine.connect()
 
 
 @app.get("/salud")
@@ -63,7 +64,7 @@ def verificar_salud():
 
 
 @app.get("/metricas/ventas_por_mes")
-def ventas_por_mes() -> List[Dict[str, Optional[float]]]:
+def ventas_por_mes() -> List[Dict[str, Union[str, float, int]]]:
     """Ventas totales agrupadas por año/mes."""
 
     query = """
@@ -81,7 +82,7 @@ def ventas_por_mes() -> List[Dict[str, Optional[float]]]:
 
 
 @app.get("/metricas/top_clientes")
-def top_clientes(limite: int = 5) -> List[Dict[str, Optional[float]]]:
+def top_clientes(limite: int = 5) -> List[Dict[str, Union[str, float, int]]]:
     """Top clientes por facturación total."""
 
     query = """
@@ -100,7 +101,7 @@ def top_clientes(limite: int = 5) -> List[Dict[str, Optional[float]]]:
 
 
 @app.get("/metricas/pendiente")
-def monto_pendiente() -> Dict[str, Optional[float]]:
+def monto_pendiente() -> Dict[str, Union[str, float, int]]:
     """Monto pendiente de cobro y número de deudores."""
 
     query_total = """

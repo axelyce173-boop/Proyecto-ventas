@@ -102,20 +102,77 @@ Todo el código está en este repositorio. Estructura:
 - `data/`: datos de entrada y salida
 
 ### Modelo ER y scripts SQL
-El modelo ER es un esquema estrella (star schema):
 
-- **dim_customer**: customer_id (PK), customer_name
-- **dim_product**: product_id (PK, AUTO_INCREMENT), item_description
-- **dim_date**: date_id (PK), date, month, year
-- **fact_sales**: sale_id (PK, AUTO_INCREMENT), customer_id (FK), product_id (FK), date_id (FK), qty, total, status
+#### 📊 Documentación del Modelo ER
+Ver archivo: **[MODELO_ER.md](MODELO_ER.md)**
 
-Script SQL en `database/ddl.sql`.
+El modelo utiliza un **esquema estrella (star schema)** para optimizar consultas analíticas:
 
-### Dashboard o capturas
-El dashboard es `dashboard/index.html`. Para capturas:
-1. Ejecuta la API: `uvicorn api.main:app --reload`
-2. Abre `dashboard/index.html` en el navegador.
-3. Toma capturas de pantalla de las gráficas.
+```
+┌─────────────────┐     ┌──────────────────┐
+│ dim_customer    │────▶│   fact_sales     │◀────┐
+│ PK: customer_id │     │ PK: sale_id      │     │
+│ • customer_name │     │ • qty, total     │     │
+└─────────────────┘     │ • status         │     │
+                        └──────────────────┘     │
+                              ▲                   │
+                    ┌─────────┴──────────┐       │
+                    │                    │       │
+              ┌─────▼─────┐      ┌──────▼──────┐
+              │ dim_date  │      │ dim_product │
+              │ PK: date_ │      │ PK: product_│
+              │ id        │      │ • desc      │
+              │ • month   │      └─────────────┘
+              │ • year    │
+              └───────────┘
+```
 
-### README con instrucciones y decisiones técnicas
-Este archivo contiene todas las instrucciones de ejecución y decisiones técnicas tomadas.
+**Tablas Dimensionales:**
+- **dim_customer**: Clientes únicos
+- **dim_product**: Catálogo de productos  
+- **dim_date**: Fechas para análisis temporal optimizados
+- **fact_sales**: Transacciones (tabla de hechos)
+
+#### 📋 Scripts SQL Completos
+Ver archivo: **[database/SCRIPTS_SQL_COMPLETOS.sql](database/SCRIPTS_SQL_COMPLETOS.sql)**
+
+Incluye:
+- ✅ Creación de base de datos y tablas
+- ✅ Definición de claves foráneas e índices
+- ✅ Vistas para análisis común (ventas por mes, top clientes, pendientes)
+- ✅ Procedimientos almacenados para población de fechas
+- ✅ Comentarios en cada campo
+- ✅ Sentencias de optimización y mantenimiento
+
+Script SQL simplificado en `database/ddl.sql` (para uso rápido).
+
+### Entregables Completos
+
+#### ✅ Repositorio con Código Fuente
+Todo el código está en este repositorio. Estructura:
+- **`api/`**: Código de la API REST (FastAPI)
+- **`dashboard/`**: Dashboard interactivo (HTML + Chart.js)
+- **`database/`**: Scripts SQL y DDL
+- **`etl/`**: Scripts de ETL (limpieza y carga)
+- **`data/`**: Datos de entrada y salida
+- **`MODELO_ER.md`**: Documentación completa del modelo ER
+- **`README.md`**: Este archivo (instrucciones y decisiones técnicas)
+
+#### ✅ Modelo ER Documentado
+**Archivo**: [MODELO_ER.md](MODELO_ER.md)
+- Diagrama visual del star schema
+- Descripciones detalladas de cada tabla
+- Relaciones y cardinalidades
+- Características y beneficios del modelo
+
+#### ✅ Scripts SQL Completos
+**Archivo**: [database/SCRIPTS_SQL_COMPLETOS.sql](database/SCRIPTS_SQL_COMPLETOS.sql)
+- Creación de base de datos `Sales_db`
+- Definición de 4 tablas dimensionales + tabla de hechos
+- Índices optimizados para consultas
+- Vistas predefinidas para análisis común
+- Procedimientos almacenados
+- Comentarios detallados en cada sección
+- Sentencias de validación y mantenimiento
+
+**Script simplificado**: [database/ddl.sql](database/ddl.sql) (para uso rápido)

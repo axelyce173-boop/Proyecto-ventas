@@ -1,0 +1,6 @@
+invoice_id,issue_date,customer_name,item_description,qty,unit_price,total,status
+INV-001,2024/01/05,Acme Corp,Widget A,10,$5.00,,paid
+INV-002,2024-01-12,Globex,Widget B,5,$12,,$
+INV-003,2024-01-20,Initech,Widget A,2,$5.00,$10.00,pending
+INV-004,2024-02-03,Acme Corp,Widget C,3,$8.5,,paid
+INV-005,2024-02-15,,Widget B,1,$12,,$
